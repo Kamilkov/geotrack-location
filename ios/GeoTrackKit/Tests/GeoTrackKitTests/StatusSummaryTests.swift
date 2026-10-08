@@ -7,9 +7,9 @@ import Testing
 
     func summary(mode: Mode = .auto, setupComplete: Bool = true, workoutsSetupComplete: Bool = true, location: StatusSummary.Location = .always,
                  precise: Bool = true, backgroundRefresh: StatusSummary.BackgroundRefresh = .on, stops: [Stop] = [],
-                 more: [StatusSummary.Problem] = [], waiting: Int = 0) -> StatusSummary {
+                 more: [StatusSummary.Problem] = [], waiting: Int = 0, settingsDamaged: Bool = false) -> StatusSummary {
         StatusSummary(mode: mode, setupComplete: setupComplete, workoutsSetupComplete: workoutsSetupComplete, location: location, precise: precise,
-                      backgroundRefresh: backgroundRefresh, stops: stops, more: more, waiting: waiting)
+                      backgroundRefresh: backgroundRefresh, stops: stops, more: more, waiting: waiting, settingsDamaged: settingsDamaged)
     }
 
     func titles(_ summary: StatusSummary) -> [String] { summary.problems.map(\.title) }
@@ -75,6 +75,13 @@ import Testing
         #expect(workout.level == .attention)
         #expect(workout.problems == [.init(title: "Workouts are stopped", detail: "The server refuses the request (413); a fault in the app. \"Send now\" tries again.")])
         #expect(titles(summary(stops: [Stop(.positions, token), Stop(.workouts, "another reason")])) == ["Positions are stopped", "Workouts are stopped"])
+    }
+
+    /// Damaged settings leave the defaults in use: Status says why Setup is empty instead of "incomplete".
+    @Test func damagedSavedSettingsAreNamedInsteadOfAnIncompleteSetup() {
+        let damaged = summary(setupComplete: false, workoutsSetupComplete: false, settingsDamaged: true)
+        #expect(titles(damaged) == ["The saved settings could not be read"])
+        #expect(damaged.level == .attention)
     }
 }
 

@@ -18,19 +18,34 @@ public struct HomeZone: Codable, Equatable, Sendable {
 
     public func contains(_ fix: Fix) -> Bool { KeepRule.metres(centre, fix) <= radiusM }
 
-    private static let key = "homeZone"
+    /// Wider than this is no home: a server's circle turns the GPS off inside it.
+    static let maxRadiusM = 1000.0
+
+    /// This zone when it is a place on Earth and a home's size; nil otherwise, and the phone never sleeps in it.
+    var usable: HomeZone? {
+        (-90...90).contains(lat) && (-180...180).contains(lon) && radiusM > 0 && radiusM <= HomeZone.maxRadiusM ? self : nil
+    }
 
     /// The zone the last answer named, or nil when none did (or none was ever received).
-    public static func stored(in defaults: UserDefaults = .standard) -> HomeZone? {
-        defaults.data(forKey: key).flatMap { try? JSONDecoder().decode(HomeZone.self, from: $0) }
+    public static func stored(at url: URL) -> HomeZone? {
+        (try? Data(contentsOf: url)).flatMap { try? JSONDecoder().decode(HomeZone.self, from: $0) }
     }
 
-    public func store(in defaults: UserDefaults = .standard) { HomeZone.store(self, in: defaults) }
-
-    /// nil forgets the zone: a server that names none means there is nowhere to sleep.
-    public static func store(_ zone: HomeZone?, in defaults: UserDefaults = .standard) {
-        if let zone, let data = try? JSONEncoder().encode(zone) { defaults.set(data, forKey: key) } else { defaults.removeObject(forKey: key) }
+    /// In a file kept out of backups, as the queue is: the centre is home. nil forgets the zone: a server that
+    /// names none means there is nowhere to sleep.
+    public static func store(_ zone: HomeZone?, at url: URL) {
+        guard let zone, let data = try? JSONEncoder().encode(zone) else { try? FileManager.default.removeItem(at: url); return }
+        do {
+            try data.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = true
+            var file = url
+            try file.setResourceValues(values)
+        } catch { try? FileManager.default.removeItem(at: url) } // not kept out of backups: not kept at all
     }
+
+    /// Versions up to 1.0 (1) kept the zone in UserDefaults, which backups carry.
+    public static func removeLegacy(from defaults: UserDefaults = .standard) { defaults.removeObject(forKey: "homeZone") }
 }
 
 /// When the recorder sleeps: the phone has had no network at all (airplane mode with every radio off) for

@@ -12,8 +12,9 @@ both are named.
 ## Common to all routes
 
 **Base URL.** An `https` address; `http` only for `localhost` and
-`127.0.0.1` (Simulator tests). The route paths are appended to it, so a base
-URL with a path prefix works.
+`127.0.0.1` (Simulator tests); no user part, query or fragment. The route
+paths are appended to it, so a base URL with a path prefix works. The app
+never follows a redirect: a 3xx is a failed upload, tried again later.
 
 **Authentication.** Every request carries `Authorization: Bearer <token>`.
 The CAP server compares the token in constant time with `HEALTH_TOKEN`.
@@ -97,7 +98,8 @@ A value the phone does not have is left out, never sent as `null`.
   phone has had no network at all for a minute while its last fix lay inside
   it: GPS off, iOS watching the circle's edge, the network's return waking
   it. The app keeps the circle of the last answer and forgets it when an
-  answer names none. A server without a
+  answer names none. A circle whose centre is no place on Earth, or whose
+  radius is not above 0 and at most 1000 m, counts as none. A server without a
   base zone, or with a base polygon, leaves the field out, and the app never
   sleeps. The first position after a sleep carries `"t": "c"` (OwnTracks'
   region trigger); the CAP server starts the trip at that position, from the

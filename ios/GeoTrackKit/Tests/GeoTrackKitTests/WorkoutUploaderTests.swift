@@ -41,6 +41,13 @@ func stored(_ id: String = "0A1B2C3D-4E5F-4A6B-8C7D-9E0F1A2B3C4D", heartRate: In
         guard case .retryLater = await WorkoutUploader(send: server.send).upload(walk(), config: workoutsConfig) else { Issue.record("expected retryLater"); return }
     }
 
+    /// The reason goes into the backed-up ledger and onto Status: one line of at most 200 characters.
+    @Test func theServersReasonIsCutToOneShortLine() async {
+        let long = "a\\nb\\u202e" + String(repeating: "x", count: 1000)
+        let server = FakeServer([.init(body: #"{"workouts":[],"skipped":[{"index":0,"reason":"\#(long)"}]}"#)])
+        #expect(await WorkoutUploader(send: server.send).upload(walk(), config: workoutsConfig) == .rejected("a b " + String(repeating: "x", count: 196)))
+    }
+
     @Test func noConnectionATimeoutOrA5xxIsTriedAgainLater() async {
         let server = FakeServer([.init(status: 503, body: #"{"error":"database unavailable"}"#), .init(error: URLError(.timedOut)), .init(status: 502)])
         let uploader = WorkoutUploader(send: server.send)

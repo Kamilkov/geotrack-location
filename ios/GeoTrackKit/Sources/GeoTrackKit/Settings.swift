@@ -28,4 +28,18 @@ public struct Settings: Codable, Hashable, Sendable {
 
     public var serverConfig: ServerConfig? { ServerConfig(server: server, token: token, device: device) }
     public var workoutsConfig: ServerConfig? { ServerConfig(server: server, token: token, device: workoutsDevice) }
+
+    /// What the Keychain held: the settings in use, and whether they are the defaults only because the saved
+    /// ones could not be decoded. Status names that, and the next save in Setup replaces them.
+    public struct Read: Equatable, Sendable {
+        public var settings: Settings
+        public var damaged: Bool
+    }
+
+    /// nil: nothing was saved yet.
+    public static func read(_ data: Data?) -> Read {
+        guard let data else { return Read(settings: Settings(), damaged: false) }
+        guard let settings = try? JSONDecoder().decode(Settings.self, from: data) else { return Read(settings: Settings(), damaged: true) }
+        return Read(settings: settings, damaged: false)
+    }
 }

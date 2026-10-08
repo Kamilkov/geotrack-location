@@ -39,9 +39,10 @@ public struct StatusSummary: Equatable, Sendable {
         }
     }
 
+    /// `settingsDamaged`: the Keychain held settings that could not be decoded, so the defaults are in use.
     /// `asleep`: while the recorder sleeps at Home, since when ("since 23:14"); the headline says so instead of "Recording".
     public init(mode: Mode, setupComplete: Bool, workoutsSetupComplete: Bool, location: Location, precise: Bool, backgroundRefresh: BackgroundRefresh,
-                stops: [Stop], more: [Problem], waiting: Int, asleep: String? = nil) {
+                stops: [Stop], more: [Problem], waiting: Int, asleep: String? = nil, settingsDamaged: Bool = false) {
         var problems: [Problem] = []
         switch location {
         case .always: break
@@ -59,7 +60,9 @@ public struct StatusSummary: Equatable, Sendable {
         case .restricted: problems.append(.init(title: "Background App Refresh is off", detail: "It is restricted on this phone: iOS may not start the app again."))
         case .lowPower: problems.append(.init(title: "Background App Refresh is off", detail: "Low Power Mode switches it off: iOS may not start the app again."))
         }
-        if !setupComplete {
+        if settingsDamaged {
+            problems.append(.init(title: "The saved settings could not be read", detail: "Enter the server, the token and the device names in Setup again and save: until then nothing is sent."))
+        } else if !setupComplete {
             problems.append(.init(title: "Setup is incomplete", detail: "Enter the server, the token and the device names in Setup: nothing is sent."))
         } else if !workoutsSetupComplete {
             problems.append(.init(title: "Setup is incomplete for workouts", detail: "Enter the workouts device name in Setup: workouts are counted, not sent."))

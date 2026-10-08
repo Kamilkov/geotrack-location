@@ -25,7 +25,7 @@ public struct WorkoutUploader: Sendable {
 
     private let send: Uploader.Send
 
-    public init(send: @escaping Uploader.Send = { try await URLSession.shared.data(for: $0) }) {
+    public init(send: @escaping Uploader.Send = Uploader.send) {
         self.send = send
     }
 
@@ -34,7 +34,7 @@ public struct WorkoutUploader: Sendable {
         do throws(NotOK) { data = try await post(WorkoutBody(device: config.device, workout: workout), config: config) } catch { return error.outcome }
         guard let answer = try? JSONDecoder().decode(Answer.self, from: data) else { return .retryLater("the server's answer could not be read") }
         if let stored = answer.workouts.first(where: { $0.id == workout.id }) { return .stored(heartRate: stored.hrSamples, route: stored.routePoints) }
-        if let skipped = answer.skipped.first(where: { $0.index == 0 }) { return .rejected(skipped.reason) }
+        if let skipped = answer.skipped.first(where: { $0.index == 0 }) { return .rejected(Uploader.serverText(skipped.reason)) }
         return .retryLater("the server's answer does not name the workout")
     }
 

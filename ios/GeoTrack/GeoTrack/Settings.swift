@@ -16,14 +16,14 @@ enum Keychain {
         [kSecClass: kSecClassGenericPassword, kSecAttrService: "app.machros.geotrack", kSecAttrAccount: "settings"]
     }
 
-    /// The saved settings, or the defaults when nothing was saved yet. Throws when the Keychain cannot be read
-    /// now, so that "not readable yet" is never taken for "not set up".
-    static func load() throws -> Settings {
+    /// The saved settings, or the defaults when nothing was saved yet or the saved item is damaged (`damaged` says
+    /// which). Throws when the Keychain cannot be read now, so that "not readable yet" is never taken for "not set up".
+    static func load() throws -> Settings.Read {
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query.merging([kSecReturnData: true, kSecMatchLimit: kSecMatchLimitOne]) { $1 } as CFDictionary, &item)
-        if status == errSecItemNotFound { return Settings() }
+        if status == errSecItemNotFound { return Settings.read(nil) }
         guard status == errSecSuccess, let data = item as? Data else { throw Unreadable(status: status) }
-        return (try? JSONDecoder().decode(Settings.self, from: data)) ?? Settings()
+        return Settings.read(data)
     }
 
     /// Readable after the first unlock and on this device only: with the Keychain's default the app

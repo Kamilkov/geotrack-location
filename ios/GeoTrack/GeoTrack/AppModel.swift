@@ -42,6 +42,8 @@ final class AppModel {
     private(set) var storageProblem: String?
     /// The Keychain did not take the last save of Setup; nil after one that worked.
     private(set) var settingsProblem: String?
+    /// The Keychain held settings that could not be decoded, so the defaults are in use; false after a save that worked.
+    private(set) var settingsDamaged = false
     private(set) var location = StatusSummary.Location.notAsked
     private(set) var precise = true
     private(set) var backgroundRefresh = StatusSummary.BackgroundRefresh.on
@@ -74,6 +76,7 @@ final class AppModel {
     private let photoQueue: PhotoQueue
     private let photoIntake: PhotoIntake
     private let photoUploader: PhotoUploader
+    private let homeZoneURL: URL
     private static let photoReportKey = "photoReport"
     private static let uploadReportKey = "uploadReport"
     /// The reason of the stop Status already shows from this launch; nil when the last outcome was no stop.
@@ -82,13 +85,17 @@ final class AppModel {
     init() throws {
         // First, and throwing: before the phone's first unlock neither the Keychain nor the app's files can be
         // read, and a model built on defaults would record in the wrong mode and upload nothing.
-        settings = try Keychain.load()
+        let keychain = try Keychain.load()
+        settings = keychain.settings
+        settingsDamaged = keychain.damaged
         let support = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         let folder = support.appendingPathComponent("queue", isDirectory: true)
         queue = try PositionQueue(directory: folder)
         // Inside the queue's folder, which is kept out of backups: the last kept position is a precise place,
         // usually home. Its name does not end in .json, so the queue never takes it for a position.
         keeper = Keeper(queue: queue, lastKeptURL: folder.appendingPathComponent("last-kept"))
+        // The base zone's centre is home too: the same folder, and its own file is kept out of backups as well.
+        homeZoneURL = folder.appendingPathComponent("home-zone")
         uploader = Uploader(queue: queue)
         // The ledger holds IDs and counts only; it lies beside the queue's folder, not in it.
         let relay = StatusRelay()
@@ -112,7 +119,8 @@ final class AppModel {
         lastUpload = UserDefaults.standard.data(forKey: AppModel.uploadReportKey).flatMap { try? JSONDecoder().decode(UploadReport.self, from: $0) }
         recorder.onSample = { [weak self] sample, woke in self?.offer(sample, wokeFromHome: woke) }
         recorder.onSleep = { [weak self] in self?.asleepSince = $0 }
-        recorder.home = HomeZone.stored()
+        HomeZone.removeLegacy()
+        recorder.home = HomeZone.stored(at: homeZoneURL)
         recorder.onAuthorization = { [weak self] in self?.readLocationAccess() }
         readLocationAccess()
         readBackgroundRefresh()
@@ -360,7 +368,8 @@ final class AppModel {
         if let healthProblem { more.append(.init(title: "Health does not deliver in the background", detail: healthProblem)) }
         return StatusSummary(mode: mode, setupComplete: settings.serverConfig != nil, workoutsSetupComplete: settings.workoutsConfig != nil,
                              location: location, precise: precise, backgroundRefresh: backgroundRefresh, stops: stops, more: more,
-                             waiting: waiting + workouts.waiting + photosWaiting, asleep: asleepSince.map { "since \(AppModel.short($0))" })
+                             waiting: waiting + workouts.waiting + photosWaiting, asleep: asleepSince.map { "since \(AppModel.short($0))" },
+                             settingsDamaged: settingsDamaged)
     }
 
     /// A time of today as the time alone, an earlier one with its day: "21:13", "2 Oct, 21:59".
@@ -381,7 +390,9 @@ final class AppModel {
         let changed = new.serverConfig != settings.serverConfig
         settings = new
         // Kept until a save works: the settings in use are the new ones, the Keychain still holds the old ones.
-        settingsProblem = Keychain.save(new) ? nil : "The Keychain did not take the settings: after the app is started again the old ones are back. Save again."
+        let savedNow = Keychain.save(new)
+        if savedNow { settingsDamaged = false }
+        settingsProblem = savedNow ? nil : "The Keychain did not take the settings: after the app is started again the old ones are back. Save again."
         // A stop belongs to the settings that earned it. Saved with others, its line goes from Status in every
         // mode; the uploaders drop the stop itself at their next call. The workouts' line goes with the check below.
         if changed {
@@ -413,7 +424,7 @@ final class AppModel {
                 standingStop = nil
                 // The base zone the server names is where the recorder may sleep; an answer that names none ends that.
                 let home = await uploader.home
-                if home != recorder.home { HomeZone.store(home); recorder.home = home }
+                if home != recorder.home { HomeZone.store(home, at: homeZoneURL); recorder.home = home }
                 lastUpload = UploadReport(time: .now, text: "\(stored) stored" + (duplicates > 0 ? ", \(duplicates) known" : "")
                     + (skipped > 0 ? ", \(skipped) skipped by the server" : ""))
                 // A server that just answered is the moment to retry a workout that waits or failed.

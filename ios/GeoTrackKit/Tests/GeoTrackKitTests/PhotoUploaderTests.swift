@@ -66,6 +66,17 @@ actor Answers {
         #expect(await answers.all.map(\.answer) == [.failed(reason: "thumbnail larger than 500 KB"), .stored(borrowed: false, id: id)])
     }
 
+    /// A hostile server's text lands on Status and in the backed-up report: one line of at most 200 characters.
+    @Test func theServersReasonsAreCutToOneShortLine() async throws {
+        let long = "a\\nb\\u202e" + String(repeating: "x", count: 1000)
+        let want = "a b " + String(repeating: "x", count: 196)
+        let server = FakeServer([.init(body: #"{"id":"\#(id)","status":"dropped","reason":"\#(long)","positionSource":null}"#),
+                                 .init(status: 400, body: #"{"error":"\#(long)"}"#)])
+        let (uploader, _, answers, _) = try make(["IMG_0001.HEIC", "IMG_0002.HEIC"], server.send)
+        _ = await uploader.round(config: config)
+        #expect(await answers.all.map(\.answer) == [.dropped(reason: want, id: id), .failed(reason: want)])
+    }
+
     @Test func aRefusalWithoutAReadableReasonNamesTheStatus() async throws {
         let server = FakeServer([.init(status: 413, body: "<html>too large</html>")])
         let (uploader, _, answers, _) = try make(["IMG_0001.HEIC"], server.send)

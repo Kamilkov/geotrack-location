@@ -52,7 +52,7 @@ public actor PhotoUploader {
     /// Why resending cannot help, and the settings that earned it: a stop does not stand for other settings.
     private var stopped: (reason: String, config: ServerConfig)?
 
-    public init(queue: PhotoQueue, send: @escaping Uploader.Send = { try await URLSession.shared.data(for: $0) },
+    public init(queue: PhotoQueue, send: @escaping Uploader.Send = Uploader.send,
                 onAnswer: @escaping @Sendable (PhotoResult) async -> Void = { _ in }) {
         self.queue = queue
         self.send = send
@@ -114,10 +114,10 @@ public actor PhotoUploader {
                 guard let a = try? JSONDecoder().decode(Answer.self, from: data), ["stored", "dropped"].contains(a.status) else {
                     return .retryLater("the server's answer names no status")
                 }
-                answer = a.status == "stored" ? .stored(borrowed: a.positionSource == "owntracks", id: a.id) : .dropped(reason: a.reason ?? "no reason given", id: a.id)
+                answer = a.status == "stored" ? .stored(borrowed: a.positionSource == "owntracks", id: a.id) : .dropped(reason: Uploader.serverText(a.reason ?? "no reason given"), id: a.id)
             case 400, 413:
                 // About this one photo, unlike a 400 for positions or workouts: it goes, the round goes on.
-                answer = .failed(reason: (try? JSONDecoder().decode(Refusal.self, from: data))?.error ?? "server answered \(status)")
+                answer = .failed(reason: Uploader.serverText((try? JSONDecoder().decode(Refusal.self, from: data))?.error ?? "server answered \(status)"))
             default:
                 if let reason = Uploader.stopReason(status: status, data: data) {
                     stopped = (reason, config)

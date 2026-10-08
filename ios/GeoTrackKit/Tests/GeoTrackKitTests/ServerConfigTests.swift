@@ -23,7 +23,7 @@ import Testing
         #expect(ServerConfig(server: "HTTP://LocalHost:4010", token: "t", device: "trial-iphone")?.baseURL.absoluteString == "http://localhost:4010")
         #expect(ServerConfig(server: "https://example.invalid\n", token: "t", device: "trial-iphone")?.baseURL.absoluteString == "https://example.invalid")
         #expect(ServerConfig(server: "HTTP://Example.Invalid", token: "t", device: "trial-iphone") == nil) // still no plain HTTP for another host
-        #expect(ServerConfig.address("Https://Example.Invalid/Trips/?a=B")?.absoluteString == "https://example.invalid/Trips/?a=B") // the rest as it was typed
+        #expect(ServerConfig.address("Https://Example.Invalid/Trips/")?.absoluteString == "https://example.invalid/Trips/") // the path as it was typed
         #expect(ServerConfig(server: "https://example.invalid", token: "t", device: "trial-iphone")
             == ServerConfig(server: " HTTPS://EXAMPLE.invalid ", token: "t", device: "trial-iphone")) // one server, one set of settings
     }
@@ -34,5 +34,13 @@ import Testing
             #expect(ServerConfig(server: "https://example.invalid", token: "t", device: device) == nil)
         }
         #expect(ServerConfig(server: "https://example.invalid", token: "t", device: String(repeating: "a", count: 40)) != nil)
+    }
+
+    /// What Setup shows must be where the token goes: a user part makes the host another one, and a query or a
+    /// fragment would ride on every request.
+    @Test(arguments: ["https://example.invalid@attacker.example", "https://example.invalid\\@attacker.example", "https://user:pw@example.invalid",
+                      "https://example.invalid/?a=b", "https://example.invalid/#x", "https://example.invalid?"])
+    func refusesAnAddressWithAUserPartAQueryOrAFragment(address: String) {
+        #expect(ServerConfig(server: address, token: "t", device: "trial-iphone") == nil)
     }
 }

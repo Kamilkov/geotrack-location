@@ -52,7 +52,7 @@ public actor Uploader {
     /// After a failed upload: until then only a manual call tries.
     private var pausedUntil: ContinuousClock.Instant?
 
-    public init(queue: PositionQueue, batchSize: Int = 50, send: @escaping Send = { try await URLSession.shared.data(for: $0) },
+    public init(queue: PositionQueue, batchSize: Int = 50, send: @escaping Send = Uploader.send,
                 now: @escaping @Sendable () -> ContinuousClock.Instant = { .now }) {
         self.queue = queue
         self.batchSize = batchSize
@@ -128,7 +128,7 @@ public actor Uploader {
             switch status {
             case 200:
                 guard let answer = try? JSONDecoder().decode(Answer.self, from: data) else { return .retryLater("the server's answer could not be read") }
-                home = answer.home
+                home = answer.home?.usable
                 let set = Set(answer.skipped)
                 // Removing is the one step that cannot be undone: an answer that does not account for exactly
                 // this batch removes nothing.
@@ -155,6 +155,27 @@ public actor Uploader {
 }
 
 extension Uploader {
+    /// Every upload goes through this session, and it never follows a redirect: a 307 would resend the batch, and
+    /// perhaps the token, to an address Setup does not show, plain HTTP on the LAN included. The 3xx itself
+    /// comes back and is a failed upload.
+    public static let send: Send = { try await shared.data(for: $0) }
+    private static let shared = session(.default)
+
+    static func session(_ configuration: URLSessionConfiguration) -> URLSession {
+        URLSession(configuration: configuration, delegate: RefuseRedirects(), delegateQueue: nil)
+    }
+
+    private final class RefuseRedirects: NSObject, URLSessionTaskDelegate {
+        func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
+                        newRequest request: URLRequest) async -> URLRequest? { nil }
+    }
+
+    /// A server's text as Status shows it and the backed-up report and ledger keep it: one line, at most 200
+    /// characters, with line breaks and control or direction marks turned into spaces.
+    static func serverText(_ text: String) -> String {
+        String(String(text.unicodeScalars.map { CharacterSet.controlCharacters.contains($0) || CharacterSet.newlines.contains($0) ? " " : Character($0) }).prefix(200))
+    }
+
     /// Why resending cannot help, for an answer that says so; nil for every other answer.
     /// One place for both uploaders: the texts follow the server's.
     static func stopReason(status: Int, data: Data) -> String? {
@@ -178,12 +199,15 @@ extension ServerConfig {
         self.init(baseURL: url, token: token, device: device)
     }
 
-    /// An address the app talks to: HTTPS, or plain HTTP for localhost only. nil for anything else.
+    /// An address the app talks to: HTTPS, or plain HTTP for localhost only, with no user part, query or fragment.
+    /// nil for anything else.
     /// Scheme and host mean the same in any case and come back in lower case: the keyboard likes to begin
     /// with a capital, and one server must not look like two.
     static func address(_ text: String) -> URL? {
         guard var parts = URLComponents(string: text.trimmingCharacters(in: .whitespacesAndNewlines)),
               let scheme = parts.scheme?.lowercased(), let host = parts.host?.lowercased(), !host.isEmpty,
+              // A user part makes the host another one than it seems; a query or a fragment would ride on every request.
+              parts.user == nil, parts.password == nil, parts.query == nil, parts.fragment == nil,
               scheme == "https" || (scheme == "http" && ["localhost", "127.0.0.1"].contains(host)) else { return nil }
         parts.scheme = scheme
         parts.host = host
