@@ -1,0 +1,2 @@
+ID;stillMinutes;stillRadiusM;minTripPoints;maxAccuracyM;modeMinutes;stopMinutes;walkMinM;gapMinutes;maxAccuracyOutsideM;maxVerticalAccuracyOutsideM
+1;30;50;3;50;5;10;500;15;35;100

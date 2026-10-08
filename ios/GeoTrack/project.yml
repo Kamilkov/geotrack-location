@@ -1,0 +1,52 @@
+name: GeoTrack
+options:
+  bundleIdPrefix: app.machros
+  deploymentTarget:
+    iOS: "18.0"
+configFiles:
+  Debug: Local.xcconfig
+  Release: Local.xcconfig
+packages:
+  GeoTrackKit:
+    path: ../GeoTrackKit
+targets:
+  GeoTrack:
+    type: application
+    platform: iOS
+    sources:
+      - path: GeoTrack
+        excludes: [Info.plist, GeoTrack.entitlements]
+    dependencies:
+      - package: GeoTrackKit
+    info:
+      path: GeoTrack/Info.plist
+      properties:
+        CFBundleDisplayName: GeoTrack
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+        UIBackgroundModes: [location]
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+        NSLocationWhenInUseUsageDescription: "GeoTrack records where you are to build your trips."
+        NSLocationAlwaysAndWhenInUseUsageDescription: "GeoTrack records your positions in the background to build your trips."
+        NSMotionUsageDescription: "GeoTrack attaches the motion activity to each position."
+        NSHealthShareUsageDescription: "GeoTrack reads your workouts with their heart rate and route and sends them to your own server."
+        # The write code exists in Simulator builds only (HealthReader.swift); the string has to be here for them,
+        # and an Info.plist from a file cannot differ by SDK (INFOPLIST_KEY_* settings apply to generated plists only).
+        NSHealthUpdateUsageDescription: "GeoTrack does not write to Health on an iPhone. Development builds add one test workout in the Simulator."
+        # HTTPS only: exempt from export compliance, so App Store Connect does not ask on every upload.
+        ITSAppUsesNonExemptEncryption: false
+    entitlements:
+      path: GeoTrack/GeoTrack.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.background-delivery: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.machros.geotrack
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        SWIFT_VERSION: "6.0"
+        CODE_SIGN_STYLE: Automatic
+        # iPhone only: never run on an iPad, and the App Store would want iPad screenshots otherwise.
+        TARGETED_DEVICE_FAMILY: "1"

@@ -1,0 +1,20 @@
+{
+  "_type": "location",
+  "tst": 1790000000,
+  "lat": 42.5021,
+  "lon": 1.5034,
+  "acc": 6,
+  "alt": 1012,
+  "vac": 4,
+  "vel": 5,
+  "cog": 87,
+  "batt": 81,
+  "bs": 1,
+  "conn": "w",
+  "p": 89.874,
+  "t": "t",
+  "motionactivities": ["walking"],
+  "mconf": "high",
+  "sacc": 0.4,
+  "cacc": 11.5
+}

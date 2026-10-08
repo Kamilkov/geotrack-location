@@ -1,0 +1,82 @@
+{
+  "name": "geotrack",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "GEOTRACK_INGEST=1 cds watch --profile hybrid",
+    "ui": "cds bind --exec -- cds serve --from app/tripsui/annotations.cds,agent/geo-agent-service.cds --port 4008",
+    "mcp-smoke": "cds bind --exec -- node scripts/mcp-smoke.mjs",
+    "test": "node --test test/",
+    "deploy": "cds deploy --to hana --profile hybrid",
+    "photos": "node --env-file=.env scripts/photos-send.js"
+  },
+  "dependencies": {
+    "@cap-js/hana": "^3",
+    "@sap/cds": "^10",
+    "mqtt": "^5"
+  },
+  "devDependencies": {
+    "@cap-js/mcp": "^1.5.0",
+    "@modelcontextprotocol/sdk": "^1.30.1",
+    "@sap/cds-dk": "^10"
+  },
+  "cds": {
+    "cdsc": {
+      "docs": true
+    },
+    "hana": {
+      "comments": true
+    },
+    "server": {
+      "cors": false
+    },
+    "mcp": {
+      "autowire": false,
+      "format": "cqn",
+      "per_action_tool": true
+    },
+    "log": {
+      "levels": {
+        "mcp": "warn"
+      }
+    },
+    "build": {
+      "tasks": [
+        {
+          "for": "hana",
+          "src": "db",
+          "options": {
+            "model": ["db", "srv", "app", "agent"]
+          }
+        }
+      ]
+    },
+    "requires": {
+      "db": {
+        "kind": "hana",
+        "pool": {
+          "acquireTimeoutMillis": 15000
+        }
+      },
+      "queue": {
+        "kind": "persistent-queue",
+        "maxAttempts": 50
+      },
+      "auth": {
+        "kind": "dummy"
+      },
+      "a4h": {
+        "kind": "odata",
+        "model": "srv/external/ZSB_GTSITEVISIT_O4",
+        "service": "ZSB_GTSITEVISIT_O4",
+        "csrf": true,
+        "credentials": {}
+      }
+    }
+  }
+}

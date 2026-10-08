@@ -1,0 +1,37 @@
+managed implementation in class zbp_gtsitevisit unique;
+strict ( 2 );
+
+define behavior for ZI_GTSiteVisit alias SiteVisit
+persistent table zgt_sitevisit
+lock master
+authorization master ( global )
+etag master LocalLastChangedAt
+{
+  create;
+  update;
+  delete;
+
+  field ( readonly : update ) VisitUUID;
+  field ( readonly ) Status, DepartedAt, Duration, DurationUnit, CreatedAt, LastChangedAt, LocalLastChangedAt;
+  field ( mandatory ) ZoneExtID, ZoneName, Device, ArrivedAt, ExtEventKey;
+
+  determination setDefaults on modify { create; }
+  action ( features : instance ) close parameter ZA_GTCloseVisit result [1] $self;
+
+  mapping for zgt_sitevisit
+  {
+    VisitUUID          = visit_uuid;
+    ZoneExtID          = zone_ext_id;
+    ZoneName           = zone_name;
+    Device             = device;
+    ArrivedAt          = arrived_at;
+    DepartedAt         = departed_at;
+    Duration           = duration_qty;
+    DurationUnit       = duration_unit;
+    Status             = status;
+    ExtEventKey        = ext_event_key;
+    CreatedAt          = created_at;
+    LastChangedAt      = last_changed_at;
+    LocalLastChangedAt = local_last_changed_at;
+  }
+}

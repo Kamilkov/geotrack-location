@@ -1,0 +1,48 @@
+{
+  "data": {
+    "metrics": [],
+    "workouts": [
+      {
+        "id": "7B3E3D5C-1D2A-4F0E-9A51-2C4B8E6F0A11",
+        "name": "Outdoor Walk",
+        "start": "2026-09-22 17:43:46 +0200",
+        "end": "2026-09-22 17:48:46 +0200",
+        "duration": 300,
+        "location": "Outdoor",
+        "isIndoor": false,
+        "distance": { "qty": 0.62, "units": "km" },
+        "activeEnergyBurned": { "qty": 32.44, "units": "kcal" },
+        "elevationUp": { "qty": 12.34, "units": "m" },
+        "temperature": { "qty": 18.46, "units": "degC" },
+        "humidity": { "qty": 61, "units": "%" },
+        "intensity": { "qty": 4.1, "units": "kcal/hr·kg" },
+        "heartRate": { "min": { "qty": 92, "units": "bpm" }, "avg": { "qty": 108.4, "units": "bpm" }, "max": { "qty": 121, "units": "bpm" } },
+        "heartRateData": [
+          { "date": "2026-09-22 17:43:46 +0200", "Min": 92, "Avg": 94.5, "Max": 97, "units": "bpm", "source": "Apple Watch" },
+          { "date": "2026-09-22 17:44:46 +0200", "Min": 99, "Avg": 102.25, "Max": 105, "units": "bpm", "source": "Apple Watch" },
+          { "date": "2026-09-22 17:45:46 +0200", "Min": 106, "Avg": 108, "Max": 111, "units": "bpm", "source": "Apple Watch" },
+          { "date": "2026-09-22 17:46:46 +0200", "Min": 110, "Avg": 114, "Max": 118, "units": "bpm", "source": "Apple Watch" },
+          { "date": "2026-09-22 17:47:46 +0200", "Min": 115, "Avg": 118, "Max": 121, "units": "bpm", "source": "Apple Watch" }
+        ],
+        "heartRateRecovery": [
+          { "date": "2026-09-22 17:49:46 +0200", "Min": 101, "Avg": 104, "Max": 108, "units": "bpm", "source": "Apple Watch" },
+          { "date": "2026-09-22 17:50:46 +0200", "Min": 95, "Avg": 97, "Max": 100, "units": "bpm", "source": "Apple Watch" }
+        ],
+        "stepCount": [
+          { "date": "2026-09-22 17:43:46 +0200", "qty": 98, "units": "count", "source": "Apple Watch" },
+          { "date": "2026-09-22 17:45:46 +0200", "qty": 105, "units": "count", "source": "Apple Watch" },
+          { "date": "2026-09-22 17:47:46 +0200", "qty": 110, "units": "count", "source": "Apple Watch" }
+        ],
+        "route": [
+          { "latitude": 42.5003, "longitude": 1.5002, "altitude": 1001.26, "timestamp": "2026-09-22 17:43:46 +0200", "speed": 1.21, "course": 12.4, "horizontalAccuracy": 4.2, "verticalAccuracy": 3.1, "speedAccuracy": 0.3, "courseAccuracy": 9.8 },
+          { "latitude": 42.5006, "longitude": 1.5004, "altitude": 1002.5, "timestamp": "2026-09-22 17:44:46 +0200", "speed": 1.34, "course": 15, "horizontalAccuracy": 4, "verticalAccuracy": 3, "speedAccuracy": 0.3, "courseAccuracy": 9.1 },
+          { "latitude": 42.5015, "longitude": 1.5008, "altitude": 1005.14, "timestamp": "2026-09-22 17:45:46 +0200", "speed": 1.37, "course": 17.6, "horizontalAccuracy": 3.8, "verticalAccuracy": 2.9, "speedAccuracy": 0.2, "courseAccuracy": 8.7 },
+          { "latitude": 42.5025, "longitude": 1.501, "altitude": 1008.8, "timestamp": "2026-09-22 17:46:46 +0200", "speed": 1.41, "course": 359.7, "horizontalAccuracy": 3.9, "verticalAccuracy": 3, "speedAccuracy": 0.2, "courseAccuracy": 8.9 },
+          { "latitude": 42.5035, "longitude": 1.5012, "altitude": 1011.02, "timestamp": "2026-09-22 17:47:46 +0200", "speed": -1, "course": -1, "horizontalAccuracy": 4.1, "verticalAccuracy": -1, "speedAccuracy": -1, "courseAccuracy": -1 },
+          { "latitude": 42.5045, "longitude": 1.5014, "altitude": 1013.6, "timestamp": "2026-09-22 17:48:46 +0200", "speed": 1.33, "course": 8, "horizontalAccuracy": 4, "verticalAccuracy": 3.2, "speedAccuracy": 0.3, "courseAccuracy": 9 }
+        ],
+        "metadata": {}
+      }
+    ]
+  }
+}

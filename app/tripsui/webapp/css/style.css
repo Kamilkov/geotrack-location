@@ -1,0 +1,10 @@
+/* Fiori reserves 3.3em for a currency code after each number; our units sit right next to it instead. */
+.sapFeControlsUnitCurrencyHbox > .sapMText:last-child { width: auto !important; margin-left: 0.25rem; }
+
+/* Header field groups: one grid per group, so values start in one column after the longest label. */
+[id*="fe::HeaderFacet::Form::FieldGroup::"].sapMVBox { display: grid; grid-template-columns: auto 1fr; row-gap: 0.5rem; align-items: baseline; }
+[id*="fe::HeaderFacet::Form::FieldGroup::"].sapMVBox > .sapMHBox { display: contents; }
+
+/* The map's size buttons sit on the map's top-right corner (Map.fragment.xml). */
+.gtMap { position: relative; }
+.gtMap .gtMapSize { position: absolute; top: 0.5rem; right: 0.5rem; z-index: 10; }

@@ -1,0 +1,32 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:vbm="sap.ui.vbm">
+  <VBox width="100%" busy="{trip>/loading}" class="gtMap" renderType="Bare">
+    <MessageStrip text="{trip>/error}" type="Error" showIcon="true" class="sapUiSmallMarginBottom"
+      visible="{= !!${trip>/error} }"/>
+    <MessageStrip text="{i18n>noRoute}" type="Information" showIcon="true"
+      visible="{= !${trip>/loading} &amp;&amp; !${trip>/hasRoute} &amp;&amp; !${trip>/error} }"/>
+    <vbm:GeoMap width="100%" height="{mapSize>/height}" visible="{= !!${trip>/hasRoute} }"
+      mapConfiguration="{trip>/mapConfiguration}" refMapLayerStack="DEFAULT"
+      centerPosition="{trip>/center}" zoomlevel="{trip>/zoom}"
+      scaleVisible="true" legendVisible="false">
+      <vbm:vos>
+        <vbm:Routes items="{trip>/routes}">
+          <vbm:items>
+            <vbm:Route position="{trip>position}" color="RGB(10,110,209)" linewidth="3"/>
+          </vbm:items>
+        </vbm:Routes>
+        <vbm:Spots items="{trip>/spots}">
+          <vbm:items>
+            <vbm:Spot position="{trip>position}" type="{trip>type}" tooltip="{trip>tooltip}" text="{trip>text}"
+              click=".extension.tripsui.ext.controller.ObjectPageExt.onPhotoPress"/>
+          </vbm:items>
+        </vbm:Spots>
+      </vbm:vos>
+    </vbm:GeoMap>
+    <HBox class="gtMapSize" visible="{= !!${trip>/hasRoute} }">
+      <Button icon="sap-icon://exit-full-screen" tooltip="{i18n>mapReduce}" enabled="{= ${mapSize>/size} !== 'small' }"
+        press=".extension.tripsui.ext.controller.ObjectPageExt.onMapSmaller"/>
+      <Button icon="sap-icon://full-screen" tooltip="{i18n>mapEnlarge}" enabled="{= ${mapSize>/size} !== 'large' }"
+        press=".extension.tripsui.ext.controller.ObjectPageExt.onMapLarger" class="sapUiTinyMarginBegin"/>
+    </HBox>
+  </VBox>
+</core:FragmentDefinition>

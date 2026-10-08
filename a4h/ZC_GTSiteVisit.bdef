@@ -1,0 +1,11 @@
+projection;
+strict ( 2 );
+
+define behavior for ZC_GTSiteVisit alias SiteVisit
+{
+  use create;
+  use update;
+  use delete;
+
+  use action close;
+}

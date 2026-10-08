@@ -1,0 +1,66 @@
+geotrack.example.com {
+    @workouts {
+        method POST
+        path /health/workouts /photos /positions
+    }
+    handle @workouts {
+        reverse_proxy geotrack-ingest:4004
+    }
+    handle {
+        respond 404
+    }
+}
+
+# The App Store reviewer's demo server: the dev server over memory, nothing real behind it.
+demo.example.com {
+    @routes {
+        method POST
+        path /health/workouts /photos /positions
+    }
+    handle @routes {
+        reverse_proxy geotrack-demo:4010
+    }
+    handle / {
+        respond "GeoTrack demo server for App Review: POST /positions, /health/workouts and /photos with the token from the review notes." 200
+    }
+    handle {
+        respond 404
+    }
+}
+
+# Trip app: Fiori elements UI + TripService (read-only but for deletePhoto), one user behind basic auth.
+# Replace <bcrypt hash> with the output of `caddy hash-password` for TRIPS_UI_PASS.
+trips.example.com {
+    # The privacy and support page lives on machros.app since 2026-10-07, and App Store Connect links there
+    # directly since the same day. The old address redirects for old links, without a login: Caddy runs
+    # redir before basic_auth.
+    redir /privacy* https://machros.app/geotrack/privacy 301
+    basic_auth {
+        geotrack <bcrypt hash>
+    }
+    @app {
+        method GET HEAD
+        path /tripsui/*
+    }
+    @odata {
+        method GET HEAD POST
+        path /trips/*
+    }
+    handle / {
+        # `*`: inside a handle, a first argument starting with / would be read as a matcher
+        redir * /tripsui/webapp/index.html 302
+    }
+    handle @app {
+        reverse_proxy geotrack-ingest:4004 {
+            header_up -Authorization
+        }
+    }
+    handle @odata {
+        reverse_proxy geotrack-ingest:4004 {
+            header_up -Authorization
+        }
+    }
+    handle {
+        respond 404
+    }
+}

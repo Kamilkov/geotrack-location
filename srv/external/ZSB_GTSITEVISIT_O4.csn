@@ -1,0 +1,232 @@
+{
+ "meta": {
+  "creator": "cds-dk 10.1.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "ZSB_GTSITEVISIT_O4.SAP__Message": {
+   "kind": "type",
+   "@cds.external": true,
+   "elements": {
+    "code": {
+     "type": "cds.String",
+     "notNull": true
+    },
+    "message": {
+     "type": "cds.String",
+     "notNull": true
+    },
+    "target": {
+     "type": "cds.String"
+    },
+    "additionalTargets": {
+     "items": {
+      "type": "cds.String",
+      "notNull": true
+     }
+    },
+    "transition": {
+     "type": "cds.Boolean",
+     "notNull": true
+    },
+    "numericSeverity": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "notNull": true
+    },
+    "longtextUrl": {
+     "type": "cds.String"
+    }
+   }
+  },
+  "ZSB_GTSITEVISIT_O4": {
+   "kind": "service",
+   "@cds.external": true,
+   "@CodeList.UnitsOfMeasure.Url": "../../../../default/iwbep/common/0001/$metadata",
+   "@CodeList.UnitsOfMeasure.CollectionPath": "UnitsOfMeasure",
+   "@Common.ApplyMultiUnitBehaviorForSortingAndFiltering": true,
+   "@Capabilities.FilterFunctions": [
+    "eq",
+    "ne",
+    "gt",
+    "ge",
+    "lt",
+    "le",
+    "and",
+    "or",
+    "contains",
+    "startswith",
+    "endswith",
+    "any",
+    "all"
+   ],
+   "@Capabilities.SupportedFormats": [
+    "application/json",
+    "application/pdf"
+   ],
+   "@PDF.Features.DocumentDescriptionReference": "../../../../default/iwbep/common/0001/$metadata",
+   "@PDF.Features.DocumentDescriptionCollection": "MyDocumentDescriptions",
+   "@PDF.Features.ArchiveFormat": true,
+   "@PDF.Features.Border": true,
+   "@PDF.Features.CoverPage": true,
+   "@PDF.Features.FitToPage": true,
+   "@PDF.Features.FontName": true,
+   "@PDF.Features.FontSize": true,
+   "@PDF.Features.HeaderFooter": true,
+   "@PDF.Features.IANATimezoneFormat": true,
+   "@PDF.Features.Margin": true,
+   "@PDF.Features.Padding": true,
+   "@PDF.Features.ResultSizeDefault": 20000,
+   "@PDF.Features.ResultSizeMaximum": 20000,
+   "@PDF.Features.Signature": true,
+   "@PDF.Features.TextDirectionLayout": true,
+   "@PDF.Features.Treeview": true,
+   "@PDF.Features.UploadToFileShare": true,
+   "@Capabilities.KeyAsSegmentSupported": true,
+   "@Capabilities.AsynchronousRequestsSupported": true
+  },
+  "ZSB_GTSITEVISIT_O4.SiteVisit": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "elements": {
+    "VisitUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "notNull": true,
+     "@Core.Immutable": true,
+     "@Common.Label": "UUID",
+     "@Common.QuickInfo": "16 Byte UUID in 16 Bytes (Raw Format)"
+    },
+    "ZoneName": {
+     "type": "cds.String",
+     "length": 60,
+     "notNull": true,
+     "@Common.FieldControl": {
+      "#": "Mandatory"
+     }
+    },
+    "Device": {
+     "type": "cds.String",
+     "length": 40,
+     "notNull": true,
+     "@Common.FieldControl": {
+      "#": "Mandatory"
+     }
+    },
+    "ArrivedAt": {
+     "type": "cds.Timestamp",
+     "@odata.Precision": 7,
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@Common.FieldControl": {
+      "#": "Mandatory"
+     },
+     "@Common.Label": "Time Stamp",
+     "@Common.QuickInfo": "UTC Time Stamp in Long Form (YYYYMMDDhhmmssmmmuuun)",
+     "@Common.DocumentationRef": "urn:sap-com:documentation:key?=type=DE&id=TIMESTAMPL"
+    },
+    "DepartedAt": {
+     "type": "cds.Timestamp",
+     "@odata.Precision": 7,
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@Core.Computed": true,
+     "@Common.Label": "Time Stamp",
+     "@Common.QuickInfo": "UTC Time Stamp in Long Form (YYYYMMDDhhmmssmmmuuun)",
+     "@Common.DocumentationRef": "urn:sap-com:documentation:key?=type=DE&id=TIMESTAMPL"
+    },
+    "Duration": {
+     "type": "cds.Decimal",
+     "precision": 13,
+     "scale": 3,
+     "notNull": true,
+     "@Core.Computed": true,
+     "@Measures.Unit": {
+      "=": "DurationUnit"
+     }
+    },
+    "DurationUnit": {
+     "type": "cds.String",
+     "length": 3,
+     "notNull": true,
+     "@Common.IsUnit": true,
+     "@Core.Computed": true
+    },
+    "Status": {
+     "type": "cds.String",
+     "length": 1,
+     "notNull": true,
+     "@Core.Computed": true
+    },
+    "ZoneExtID": {
+     "type": "cds.String",
+     "length": 36,
+     "notNull": true,
+     "@Common.FieldControl": {
+      "#": "Mandatory"
+     }
+    },
+    "ExtEventKey": {
+     "type": "cds.String",
+     "length": 120,
+     "notNull": true,
+     "@Common.FieldControl": {
+      "#": "Mandatory"
+     }
+    },
+    "LocalLastChangedAt": {
+     "type": "cds.Timestamp",
+     "@odata.Precision": 7,
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@Core.Computed": true,
+     "@Common.Label": "Changed On",
+     "@Common.QuickInfo": "Local Instance Last Change Date Time",
+     "@Common.DocumentationRef": "urn:sap-com:documentation:key?=type=DE&id=ABP_LOCINST_LASTCHANGE_TSTMPL"
+    },
+    "SAP__Messages": {
+     "items": {
+      "type": "ZSB_GTSITEVISIT_O4.SAP__Message",
+      "notNull": true
+     }
+    }
+   },
+   "actions": {
+    "close": {
+     "kind": "action",
+     "params": {
+      "DepartedAt": {
+       "type": "cds.Timestamp",
+       "@odata.Precision": 7,
+       "@odata.Type": "Edm.DateTimeOffset",
+       "@Common.Label": "Time Stamp",
+       "@Common.QuickInfo": "UTC Time Stamp in Long Form (YYYYMMDDhhmmssmmmuuun)",
+       "@Common.DocumentationRef": "urn:sap-com:documentation:key?=type=DE&id=TIMESTAMPL"
+      }
+     },
+     "returns": {
+      "type": "ZSB_GTSITEVISIT_O4.SiteVisit",
+      "notNull": true
+     }
+    }
+   },
+   "@Common.Label": "Site Visit",
+   "@Common.Messages": {
+    "=": "SAP__Messages"
+   },
+   "@Capabilities.SearchRestrictions.Searchable": false,
+   "@Capabilities.UpdateRestrictions.DeltaUpdateSupported": true,
+   "@Capabilities.UpdateRestrictions.NonUpdatableProperties": [
+    "VisitUUID"
+   ],
+   "@Capabilities.UpdateRestrictions.QueryOptions.SelectSupported": true,
+   "@Capabilities.DeepUpdateSupport.ContentIDSupported": true,
+   "@Capabilities.FilterRestrictions.FilterExpressionRestrictions": [
+    {
+     "Property": {
+      "=": "Duration"
+     },
+     "AllowedExpressions": "MultiValue"
+    }
+   ]
+  }
+ }
+}

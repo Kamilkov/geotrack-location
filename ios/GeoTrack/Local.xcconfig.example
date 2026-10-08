@@ -1,0 +1,4 @@
+// Copy to Local.xcconfig (git-ignored) and put your Apple team id in:
+//   cp Local.xcconfig.example Local.xcconfig
+// The Simulator needs no team; an iPhone does.
+DEVELOPMENT_TEAM =

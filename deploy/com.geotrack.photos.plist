@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Template: fill __NODE__, __REPO__ and __HOME__, then copy it to ~/Library/LaunchAgents. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.geotrack.photos</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__NODE__</string>
+    <string>--env-file=__REPO__/.env</string>
+    <string>__REPO__/scripts/photos-send.js</string>
+  </array>
+  <key>WorkingDirectory</key><string>__REPO__</string>
+  <key>WatchPaths</key><array><string>__HOME__/Pictures/GeoTrack/inbox</string></array>
+  <key>StartInterval</key><integer>3600</integer>
+  <key>EnvironmentVariables</key>
+  <dict><key>PATH</key><string>/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string></dict>
+  <key>StandardOutPath</key><string>__HOME__/Library/Logs/geotrack-photos.log</string>
+  <key>StandardErrorPath</key><string>__HOME__/Library/Logs/geotrack-photos.log</string>
+</dict>
+</plist>

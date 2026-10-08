@@ -1,0 +1,19 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+  <VBox width="100%" busy="{= ${trip>/loading} || ${trip>/deleting} }">
+    <MessageStrip text="{trip>/error}" type="Error" showIcon="true" class="sapUiSmallMarginBottom"
+      visible="{= !!${trip>/error} }"/>
+    <MessageStrip text="{i18n>noPhotos}" type="Information" showIcon="true"
+      visible="{= !${trip>/loading} &amp;&amp; ${trip>/photos}.length === 0 &amp;&amp; !${trip>/error} }"/>
+    <FlexBox wrap="Wrap" items="{trip>/photos}">
+      <VBox class="sapUiTinyMarginEnd sapUiTinyMarginBottom" alignItems="Center">
+        <Image src="{trip>src}" height="120px" densityAware="false" decorative="false" alt="{trip>time}"
+          press=".extension.tripsui.ext.controller.ObjectPageExt.onPhotoPress"/>
+        <HBox alignItems="Center">
+          <Text text="{trip>time}"/>
+          <Button icon="sap-icon://delete" type="Transparent" tooltip="{i18n>deletePhoto}"
+            press=".extension.tripsui.ext.controller.ObjectPageExt.onDeletePhoto"/>
+        </HBox>
+      </VBox>
+    </FlexBox>
+  </VBox>
+</core:FragmentDefinition>

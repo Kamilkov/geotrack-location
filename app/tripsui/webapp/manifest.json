@@ -1,0 +1,117 @@
+{
+  "_version": "1.83.0",
+  "sap.app": {
+    "id": "tripsui",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": { "version": "0.0.1" },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "dataSources": {
+      "mainService": {
+        "uri": "/trips/",
+        "type": "OData",
+        "settings": { "annotations": [], "odataVersion": "4.0" }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "deviceTypes": { "desktop": true, "tablet": true, "phone": true }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.152.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {},
+        "sap.ui.vbm": {},
+        "sap.viz": {}
+      }
+    },
+    "extends": {
+      "extensions": {
+        "sap.ui.controllerExtensions": {
+          "sap.fe.templates.ObjectPage.ObjectPageController#tripsui::TripsObjectPage": {
+            "controllerName": "tripsui.ext.controller.ObjectPageExt"
+          }
+        }
+      }
+    },
+    "resources": {
+      "css": [{ "uri": "css/style.css" }]
+    },
+    "contentDensities": { "compact": true, "cozy": true },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": { "bundleName": "tripsui.i18n.i18n" }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": { "operationMode": "Server", "autoExpandSelect": true, "earlyRequests": true }
+      }
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        { "pattern": ":?query:", "name": "TripsList", "target": "TripsList" },
+        { "pattern": "Trips({key}):?query:", "name": "TripsObjectPage", "target": "TripsObjectPage" }
+      ],
+      "targets": {
+        "TripsList": {
+          "type": "Component",
+          "id": "TripsList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/Trips",
+              "variantManagement": "Page",
+              "navigation": { "Trips": { "detail": { "route": "TripsObjectPage" } } },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": { "tableSettings": { "type": "GridTable" } }
+              }
+            }
+          }
+        },
+        "TripsObjectPage": {
+          "type": "Component",
+          "id": "TripsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Trips",
+              "content": {
+                "body": {
+                  "sections": {
+                    "Map": {
+                      "template": "tripsui.ext.fragment.Map",
+                      "title": "{i18n>mapSection}",
+                      "position": { "placement": "Before", "anchor": "Workouts" }
+                    },
+                    "Chart": {
+                      "template": "tripsui.ext.fragment.Chart",
+                      "title": "{i18n>chartSection}",
+                      "position": { "placement": "After", "anchor": "Workouts" }
+                    },
+                    "Photos": {
+                      "template": "tripsui.ext.fragment.Photos",
+                      "title": "{i18n>photosSection}",
+                      "position": { "placement": "After", "anchor": "Chart" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": { "registrationIds": [], "archeType": "transactional" },
+  "sap.fe": { "app": { "enableLazyLoading": true } }
+}

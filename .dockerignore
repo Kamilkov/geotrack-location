@@ -1,0 +1,14 @@
+node_modules/
+gen/
+.env
+.cdsrc-private.json
+default-env.json
+vcap.json
+*.log
+.superpowers/
+.git/
+docs/
+agent/
+ios/
+.claude/
+.codex/

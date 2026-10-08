@@ -1,0 +1,15 @@
+node_modules/
+gen/
+.env
+.cdsrc-private.json
+default-env.json
+vcap.json
+*.log
+.superpowers/
+ios/GeoTrackKit/.build/
+ios/GeoTrackKit/.swiftpm/
+ios/GeoTrack/build/
+ios/GeoTrack/GeoTrack.xcodeproj/
+ios/GeoTrack/GeoTrack/Info.plist
+ios/GeoTrack/Local.xcconfig
+ios/GeoTrack/GeoTrack/GeoTrack.entitlements

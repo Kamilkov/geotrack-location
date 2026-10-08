@@ -1,0 +1,4 @@
+@EndUserText.label: 'GeoTrack site visits'
+define service ZSD_GTSiteVisit {
+  expose ZC_GTSiteVisit as SiteVisit;
+}

@@ -1,0 +1,23 @@
+# Paste these services into the VPS stack next to caddy. (Until 2026-10-06 a mosquitto service stood here for
+# OwnTracks over MQTT; the app sends over HTTPS now, and the broker is gone.)
+services:
+  geotrack-ingest:
+    build: ./geotrack
+    restart: unless-stopped
+    env_file: ./geotrack.env         # VCAP_SERVICES, A4H_URL, SAP_USER, SAP_PASSWORD, HEALTH_TOKEN (HEALTH_DEVICE optional, default iphone); MQTT_URL/USER/PASS only with a broker
+    mem_limit: 512m     # 20 MB workout bodies: ~5× in heap while parsing; idles at ~85 MiB
+    # no ports: Caddy exposes only POST /health/workouts, /photos and /positions (Bearer token); /health and OData stay internal (no auth on the service)
+    # A4H_URL points at the a4h container by name: a4h (not part of this project) must be
+    # attached to this project's default network, stack_default.
+
+  geotrack-demo:
+    # The App Store reviewer's server: the dev server over memory, nothing real behind it.
+    build: ./geotrack
+    command: ["node", "scripts/positions-dev-server.js"]
+    restart: unless-stopped
+    env_file: ./geotrack-demo.env    # DEV_SERVER_TOKEN=<openssl rand -hex 16> and nothing else: no HANA, MQTT or A4H value reaches it
+    environment:
+      HOST: 0.0.0.0                  # reachable from Caddy on the compose network
+      PORT: "4010"                   # the image sets PORT=4004 for the ingest; the demo keeps its own port
+    mem_limit: 256m     # a 20 MB workout body parses in memory; nothing is kept but the last 10000 positions (MAX_STORED)
+    # no ports: Caddy exposes POST /positions, /health/workouts and /photos on demo.example.com
